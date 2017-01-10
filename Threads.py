@@ -36,6 +36,25 @@ def primes(n):
                 return result
 
 
+
+def primes2(n):
+    primfac = []
+    num = n
+    d = 2
+    while d * d <= n:
+        while (n % d) == 0:
+            primfac.append(d)  # supposing you want multiple factors repeated
+            n //= d
+        d += 1
+    if n > 1:
+        primfac.append(n)
+    myfile = open('threadresults.txt', 'a')
+    myfile.write(str(num) + ":" + str(primfac))
+    return primfac
+
+
+
+
 def threaded_factorizer(nums, nthreads):
     def worker(nums, outdict):
         """ The worker function, invoked in a thread. 'nums' is a
@@ -43,7 +62,7 @@ def threaded_factorizer(nums, nthreads):
             outdict.
         """
         for n in nums:
-            outdict[n] = primes(n)
+            outdict[n] = primes2(n)
 
     # Each thread will get 'chunksize' nums and its own output dict
     chunksize = int(math.ceil(len(nums) / float(nthreads)))
@@ -66,7 +85,8 @@ def threaded_factorizer(nums, nthreads):
 
     # Merge all partial output dicts into a single dict and return it
     # return {k: v for out_d in outs for k, v in out_d.iteritems()}
-    print {k: v for out_d in outs for k, v in out_d.iteritems()}
-    print chunksize
+    # print {k: v for out_d in outs for k, v in out_d.iteritems()}
+    print "Finished!"
 
-threaded_factorizer((400, 50, 60, 90), 2)
+
+threaded_factorizer((400, 50, 60, 90), 4)
