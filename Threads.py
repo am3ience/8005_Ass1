@@ -18,25 +18,12 @@
 from math import floor
 import math
 import threading
+import datetime
+import time
 import multiprocessing
 
 
 # returns the prime numbers of a given number (decomposition)
-def primes(n):
-    result = []
-    for i in range(2, n + 1):  # test all integers between 2 and n
-        s = 0;
-        while n / i == floor(n / float(i)):  # is n/i an integer?
-            n = n / float(i)
-            s += 1
-        if s > 0:
-            for k in range(s):
-                result.append(i)  # i is a pf s times
-            if n == 1:
-                return result
-
-
-
 def primes2(n):
     primfac = []
     num = n
@@ -49,13 +36,14 @@ def primes2(n):
     if n > 1:
         primfac.append(n)
     myfile = open('threadresults.txt', 'a')
-    myfile.write(str(num) + ":" + str(primfac))
+    myfile.write(str(num) + ":" + str(primfac) + "\n")
     return primfac
 
 
 
 
 def threaded_factorizer(nums, nthreads):
+    millis_start = int(round(time.time() * 1000))
     def worker(nums, outdict):
         """ The worker function, invoked in a thread. 'nums' is a
             list of numbers to factor. The results are placed in
@@ -86,7 +74,13 @@ def threaded_factorizer(nums, nthreads):
     # Merge all partial output dicts into a single dict and return it
     # return {k: v for out_d in outs for k, v in out_d.iteritems()}
     # print {k: v for out_d in outs for k, v in out_d.iteritems()}
+
+    millis_end = int(round(time.time() * 1000))
+
+    millis = millis_end - millis_start
+
+    myfile = open('threadresults.txt', 'a')
+    myfile.write("it took " + str(millis) + " milliseconds to calculate the prime numbers.")
     print "Finished!"
 
-
-threaded_factorizer((400, 50, 60, 90), 4)
+threaded_factorizer((400243534500, 100345345000, 600034522000, 9000045346435345000), 4)
