@@ -7,7 +7,7 @@
 #
 # PROGRAMMERS:    Paul Cabanez
 #
-# NOTES:
+# NOTES: program that utilizes threads to do mathematical computations
 #
 #
 #
@@ -34,13 +34,16 @@ def primes2(n):
         d += 1
     if n > 1:
         primfac.append(n)
+
+    # writes to the text file the results
     myfile = open('threadresults.txt', 'a')
     myfile.write("\n" + str(num) + ":" + str(primfac) + "\n")
     return primfac
 
+# main function
+def threads_factor():
 
-def threaded_factorizer():
-
+    # gets beginning time of execution in milliseconds
     millis_start = int(round(time.time() * 1000))
 
     numbers = entry_1.get()
@@ -49,24 +52,20 @@ def threaded_factorizer():
     numbthreads = entry_2.get()
     nthreads = int(numbthreads)
 
-
-
+    """ The worker function, invoked in a thread. 'nums' is a
+    list of numbers to factor. The results are placed a list."""
     def worker(nums, outdict):
-        """ The worker function, invoked in a thread. 'nums' is a
-            list of numbers to factor. The results are placed in
-            outdict.
-        """
+
         for n in nums:
             outdict[n] = primes2(n)
 
-    # Each thread will get 'chunksize' nums and its own output dict
+    # Each thread will get a chunksize nums
     chunksize = int(math.ceil(len(nums) / float(nthreads)))
     threads = []
     outs = [{} for i in range(nthreads)]
 
     for i in range(nthreads):
         # Create each thread, passing it its chunk of numbers to factor
-        # and output dict.
         t = threading.Thread(target=worker, args=(nums[chunksize * i:chunksize * (i + 1)], outs[i]))
         threads.append(t)
         t.start()
@@ -75,14 +74,13 @@ def threaded_factorizer():
     for t in threads:
         t.join()
 
-    # Merge all partial output dicts into a single dict and return it
-    # return {k: v for out_d in outs for k, v in out_d.iteritems()}
-    # print {k: v for out_d in outs for k, v in out_d.iteritems()}
-
+    # gets end time of execution  in milliseconds
     millis_end = int(round(time.time() * 1000))
+
+    # minus the end and start time for overall time to run the code
     millis = millis_end - millis_start
 
-
+    # write to the text file how long it took
     myfile = open('threadresults.txt', 'a')
     myfile.write("it took " + str(millis) + " milliseconds to calculate the prime numbers.")
 
@@ -92,6 +90,7 @@ def threaded_factorizer():
 
 if __name__ == '__main__':
 
+    # UI code
     root = Tk()
     root.title("Threads")
 
@@ -103,7 +102,7 @@ if __name__ == '__main__':
 
     entry_2 = Entry(root)
 
-    button_1 = Button(root, text="Enter", command=lambda: threaded_factorizer())
+    button_1 = Button(root, text="Enter", command=lambda: threads_factor())
 
     text_1 = Text(root)
 

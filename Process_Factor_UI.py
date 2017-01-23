@@ -7,7 +7,7 @@
 #
 # PROGRAMMERS:    Paul Cabanez
 #
-# NOTES:
+# NOTES: program that utilizes processes to do mathematical computations
 #
 #
 #
@@ -22,17 +22,16 @@ import multiprocessing
 import os
 from Tkinter import *
 
-
+""" The worker function, invoked in a process. 'nums' is a
+    list of numbers to factor. The results are placed in
+    a list that's pushed to a queue. """
 def worker(nums, out_q):
-    """ The worker function, invoked in a process. 'nums' is a
-        list of numbers to factor. The results are placed in
-        a dictionary that's pushed to a queue.
-    """
     outdict = {}
     for n in nums:
         outdict[n] = primes2(n)
     out_q.put(outdict)
 
+# Prime number defactorizer
 def primes2(n):
     primfac = []
     num = n
@@ -44,32 +43,37 @@ def primes2(n):
         d += 1
     if n > 1:
         primfac.append(n)
+
+    # writes to the text file the results
     myfile = open('processresults.txt', 'a')
     myfile.write("\n" + str(num) + ":" + str(primfac) + "\n")
     return primfac
 
+# main function
 def process_factor():
+
+    # gets beginning time of execution in milliseconds
     millis_start = int(round(time.time() * 1000))
 
+    # grabs input from UI
     numbers = entry_1.get()
     nums = map(int, numbers.split())
 
     numbprocs = entry_2.get()
     nprocs = int(numbprocs)
 
-    # Each process will get 'chunksize' nums and a queue to put his out
-    # dict into
+    # Each process will get a chunksize nums and a queue
     out_q = multiprocessing.Queue()
     chunksize = int(math.ceil(len(nums) / float(nprocs)))
     procs = []
 
+    # create the processes
     for i in range(nprocs):
         p = multiprocessing.Process(target=worker, args=(nums[chunksize * i:chunksize * (i + 1)], out_q))
         procs.append(p)
         p.start()
 
-    # Collect all results into a single result dict. We know how many dicts
-    # with results to expect.
+    # Collect all results into a single result list
     resultdict = {}
     for i in range(nprocs):
         resultdict.update(out_q.get())
@@ -78,21 +82,26 @@ def process_factor():
     for p in procs:
         p.join()
 
+    # gets end time of execution  in milliseconds
     millis_end = int(round(time.time() * 1000))
 
+    # minus the end and start time for overall time to run the code
     millis = millis_end - millis_start
 
+    # write to the text file how long it took
     myfile = open('processresults.txt', 'a')
     myfile.write("it took " + str(millis) + " milliseconds to calculate the prime numbers.")
 
     text_1.insert(INSERT, resultdict)
 
+    # opens the text file
     os.startfile("processresults.txt")
 
 if __name__ == '__main__':
 
+    # UI code
     root = Tk()
-    root.title("Threads")
+    root.title("Process")
 
     label_1 = Label(root, text="Type in a list of number separated by spaces: ")
 
